@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains reference_value_pair.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function reference_value_pair_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the reference_value_pair module.
+    case 'help.page.reference_value_pair':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Defines a field type to store a pair of an entity reference and a value.') . '</p>';
+      return $output;
+
+    default:
+  }
+}

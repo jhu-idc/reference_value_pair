@@ -171,7 +171,7 @@ class ReferenceValuePair extends FieldItemBase {
             'max' => $max_length,
             'maxMessage' => t('%name: may not be longer than @max characters.', array(
               '%name' => $this->getFieldDefinition()->getLabel(),
-              '@max' => $max_length
+              '@max' => $max_length,
             )),
           ),
         ),
@@ -521,7 +521,7 @@ class ReferenceValuePair extends FieldItemBase {
                   '%target_entity_type' => $bundle->getEntityType()->getBundleOf(),
                   '%field_name' => $field_definition->getName(),
                   '%entity_type' => $field_definition->getTargetEntityTypeId(),
-                  '%bundle' => $field_definition->getTargetBundle()
+                  '%bundle' => $field_definition->getTargetBundle(),
                 ]);
               }
             }
@@ -668,8 +668,8 @@ class ReferenceValuePair extends FieldItemBase {
         'field_storage_config' => [
           'settings' => [
             'target_type' => $entity_type->id(),
-          ]
-        ]
+          ],
+        ],
       ];
     }
 

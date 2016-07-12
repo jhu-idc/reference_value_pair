@@ -9,7 +9,7 @@ namespace Drupal\reference_value_pair\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
-use Drupal\reference_value_pair\Plugin\Field\FieldType\ReferenceValuePair;
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 
 /**
  * Plugin implementation of the 'reference_value_formatter' formatter.
@@ -48,7 +48,7 @@ class ReferenceValueFormatter extends EntityReferenceFormatterBase {
   /**
    * {@inheritdoc}
    */
-  protected function needsEntityLoad(ReferenceValuePair $item) {
+  protected function needsEntityLoad(EntityReferenceItem $item) {
     return !$item->hasNewEntity();
   }
 

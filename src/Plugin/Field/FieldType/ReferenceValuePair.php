@@ -14,7 +14,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\TypedData\EntityDataDefinition;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
@@ -182,77 +181,6 @@ class ReferenceValuePair extends EntityReferenceItem {
     }
 
     return $constraints;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setValue($values, $notify = TRUE) {
-    if (isset($values) && !is_array($values)) {
-      // If either a scalar or an object was passed as the value for the item,
-      // assign it to the 'entity' property since that works for both cases.
-      $this->set('entity', $values, $notify);
-    }
-    else {
-      parent::setValue($values, FALSE);
-      // Support setting the field item with only one property, but make sure
-      // values stay in sync if only property is passed.
-      // NULL is a valid value, so we use array_key_exists().
-      if (is_array($values) && array_key_exists('target_id', $values) && !isset($values['entity'])) {
-        $this->onChange('target_id', FALSE);
-      }
-      elseif (is_array($values) && !array_key_exists('target_id', $values) && isset($values['entity'])) {
-        $this->onChange('entity', FALSE);
-      }
-      elseif (is_array($values) && array_key_exists('target_id', $values) && isset($values['entity'])) {
-        // If both properties are passed, verify the passed values match. The
-        // only exception we allow is when we have a new entity: in this case
-        // its actual id and target_id will be different, due to the new entity
-        // marker.
-        $entity_id = $this->get('entity')->getTargetIdentifier();
-        // If the entity has been saved and we're trying to set both the
-        // target_id and the entity values with a non-null target ID, then the
-        // value for target_id should match the ID of the entity value.
-        if (!$this->entity->isNew() && $values['target_id'] !== NULL && ($entity_id !== $values['target_id'])) {
-          throw new \InvalidArgumentException('The target id and entity passed to the entity reference item do not match.');
-        }
-      }
-      // Notify the parent if necessary.
-      if ($notify && $this->parent) {
-        $this->parent->onChange($this->getName());
-      }
-    }
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getValue() {
-    $values = parent::getValue();
-
-    // If there is an unsaved entity, return it as part of the field item values
-    // to ensure idempotency of getValue() / setValue().
-    if ($this->hasNewEntity()) {
-      $values['entity'] = $this->entity;
-    }
-    return $values;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onChange($property_name, $notify = TRUE) {
-    // Make sure that the target ID and the target property stay in sync.
-    if ($property_name == 'entity') {
-      $property = $this->get('entity');
-      $target_id = $property->isTargetNew() ? NULL : $property->getTargetIdentifier();
-      $this->writePropertyValue('target_id', $target_id);
-    }
-    elseif ($property_name == 'target_id') {
-      $this->writePropertyValue('entity', $this->target_id);
-    }
-    parent::onChange($property_name, $notify);
   }
 
   /**

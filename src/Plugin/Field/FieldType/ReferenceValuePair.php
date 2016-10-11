@@ -583,28 +583,6 @@ class ReferenceValuePair extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public static function getPreconfiguredOptions() {
-    $options = array();
-
-    // Add all the commonly referenced entity types as distinct pre-configured
-    // options.
-    $entity_types = \Drupal::entityManager()->getDefinitions();
-    $common_references = array_filter($entity_types, function (EntityTypeInterface $entity_type) {
-      return $entity_type->isCommonReferenceTarget();
-    });
-
-    /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
-    foreach ($common_references as $entity_type) {
-      $options[$entity_type->id()] = [
-        'label' => $entity_type->getLabel(),
-        'field_storage_config' => [
-          'settings' => [
-            'target_type' => $entity_type->id(),
-          ],
-        ],
-      ];
-    }
-
-    return $options;
+    return array();
   }
-
 }

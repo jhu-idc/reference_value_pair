@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dbc_core\Plugin\Field\FieldWidget;
+namespace Drupal\reference_value_pair\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldDefinitionInterface;

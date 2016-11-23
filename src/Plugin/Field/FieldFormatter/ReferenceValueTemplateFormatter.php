@@ -15,14 +15,14 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  * Plugin implementation of the 'reference_value_formatter' formatter.
  *
  * @FieldFormatter(
- *   id = "reference_value_formatter",
- *   label = @Translation("Reference value formatter"),
+ *   id = "reference_value_template_formatter",
+ *   label = @Translation("Reference value template formatter"),
  *   field_types = {
  *     "reference_value_pair"
  *   }
  * )
  */
-class ReferenceValueFormatter extends EntityReferenceFormatterBase {
+class ReferenceValueTemplateFormatter extends EntityReferenceFormatterBase {
 
   /**
    * {@inheritdoc}
@@ -30,23 +30,20 @@ class ReferenceValueFormatter extends EntityReferenceFormatterBase {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = array();
 
+    // Include entity and field information to help template suggestions.
+    $element = array(
+      '#field_name' => $this->fieldDefinition->getName(),
+      '#field_type' => $this->fieldDefinition->getType(),
+      '#entity_type' => $items->getEntity()->getEntityTypeId(),
+      '#bundle' => $items->getEntity()->bundle(),
+    );
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
       $elements[$delta] = array(
-        '#theme' => 'reference_value_pair__formatter',
-        '#item' => array(
-          'value' => $items[$delta]->value,
-          'label' => $entity->label(),
-        ),
+        '#theme' => 'reference_value_pair_formatter',
+        '#item' => $items[$delta],
+        '#entity' => $entity,
+        '#element' => $element,
       );
-
-      $elements[$delta] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ label }} {{ value }}',
-        '#context' => [
-          'value' => $items[$delta]->value,
-          'label' => $entity->label(),
-        ],
-      ];
       $elements[$delta]['#cache']['tags'] = $entity->getCacheTags();
     }
 

@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a reference value pair field.
+ *
+ * Available variables:
+ * - value: A collection of responsive image data.
+ * - label: An optional URL the image can be linked to.
+ *
+ * @see template_preprocess_reference_value_pair_formatter()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if url %}
+  <a href="{{ url }}">{{ label }} {{ value }}</a>
+{% else %}
+  {{ label }} {{ value }}
+{% endif %}

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\reference_value_pair\Plugin\Field\FieldType\ReferenceValuePair.
- */
-
 namespace Drupal\reference_value_pair\Plugin\Field\FieldType;
 
 use Drupal\Component\Utility\Html;
@@ -295,7 +290,7 @@ class ReferenceValuePair extends EntityReferenceItem {
     );
     $form['handler'] = array(
       '#type' => 'details',
-      '#title' => t('Reference type'),
+      '#title' => $this->t('Reference type'),
       '#open' => TRUE,
       '#tree' => TRUE,
       '#process' => array(array(get_class($this), 'formProcessMergeParent')),
@@ -303,7 +298,7 @@ class ReferenceValuePair extends EntityReferenceItem {
 
     $form['handler']['handler'] = array(
       '#type' => 'select',
-      '#title' => t('Reference method'),
+      '#title' => $this->t('Reference method'),
       '#options' => $handlers_options,
       '#default_value' => $field->getSetting('handler'),
       '#required' => TRUE,
@@ -312,7 +307,7 @@ class ReferenceValuePair extends EntityReferenceItem {
     );
     $form['handler']['handler_submit'] = array(
       '#type' => 'submit',
-      '#value' => t('Change handler'),
+      '#value' => $this->t('Change handler'),
       '#limit_validation_errors' => array(),
       '#attributes' => array(
         'class' => array('js-hide'),

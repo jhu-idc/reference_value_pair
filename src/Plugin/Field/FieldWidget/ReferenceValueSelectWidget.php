@@ -52,16 +52,16 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
 
     $elements['size_value'] = array(
       '#type' => 'number',
-      '#title' => t('Size of the value textfield'),
+      '#title' => $this->t('Size of the value textfield'),
       '#default_value' => $this->getSetting('size_value'),
       '#min' => 1,
       '#required' => TRUE,
     );
     $elements['placeholder_value'] = array(
       '#type' => 'textfield',
-      '#title' => t('Value placeholder'),
+      '#title' => $this->t('Value placeholder'),
       '#default_value' => $this->getSetting('placeholder_value'),
-      '#description' => t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
+      '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
     );
     return $elements;
   }
@@ -74,10 +74,10 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
 
     $placeholder = $this->getSetting('placeholder_value');
     if (!empty($placeholder)) {
-      $summary[] = t('Placeholder Value: @placeholder', array('@placeholder' => $placeholder));
+      $summary[] = $this->t('Placeholder Value: @placeholder', array('@placeholder' => $placeholder));
     }
     else {
-      $summary[] = t('No Placeholder Value');
+      $summary[] = $this->t('No Placeholder Value');
     }
 
     return $summary;

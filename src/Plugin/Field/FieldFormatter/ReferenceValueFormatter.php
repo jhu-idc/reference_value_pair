@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\reference_value_pair\Plugin\Field\FieldFormatter\ReferenceValueFormatter.
- */
-
 namespace Drupal\reference_value_pair\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;

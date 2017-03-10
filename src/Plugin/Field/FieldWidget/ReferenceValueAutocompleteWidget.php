@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\reference_value_pair\Plugin\Field\FieldWidget\ReferenceValueAutocompleteWidget.
- */
-
 namespace Drupal\reference_value_pair\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
@@ -46,36 +41,36 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
 
     $elements['size_er'] = array(
       '#type' => 'number',
-      '#title' => t('Size of the entity reference textfield'),
+      '#title' => $this->t('Size of the entity reference textfield'),
       '#default_value' => $this->getSetting('size_er'),
       '#required' => TRUE,
       '#min' => 1,
     );
     $elements['placeholder_er'] = array(
       '#type' => 'textfield',
-      '#title' => t('Entity reference placeholder'),
+      '#title' => $this->t('Entity reference placeholder'),
       '#default_value' => $this->getSetting('placeholder_er'),
-      '#description' => t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
+      '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
     );
     $elements['match_operator'] = array(
       '#type' => 'radios',
-      '#title' => t('Autocomplete matching'),
+      '#title' => $this->t('Autocomplete matching'),
       '#default_value' => $this->getSetting('match_operator'),
       '#options' => $this->getMatchOperatorOptions(),
-      '#description' => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of entities.'),
+      '#description' => $this->t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of entities.'),
     );
     $elements['size_value'] = array(
       '#type' => 'number',
-      '#title' => t('Size of the value textfield'),
+      '#title' => $this->t('Size of the value textfield'),
       '#default_value' => $this->getSetting('size_value'),
       '#min' => 1,
       '#required' => TRUE,
     );
     $elements['placeholder_value'] = array(
       '#type' => 'textfield',
-      '#title' => t('Value placeholder'),
+      '#title' => $this->t('Value placeholder'),
       '#default_value' => $this->getSetting('placeholder_value'),
-      '#description' => t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
+      '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
     );
     return $elements;
   }
@@ -86,23 +81,23 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
   public function settingsSummary() {
     $summary = [];
 
-    $summary[] = t('Textfield Entity Reference size: @size', array('@size' => $this->getSetting('size_er')));
+    $summary[] = $this->t('Textfield Entity Reference size: @size', array('@size' => $this->getSetting('size_er')));
     if (!empty($this->getSetting('placeholder_er'))) {
-      $summary[] = t('Placeholder Entity Reference: @placeholder', array('@placeholder' => $this->getSetting('placeholder_er')));
+      $summary[] = $this->t('Placeholder Entity Reference: @placeholder', array('@placeholder' => $this->getSetting('placeholder_er')));
     }
     else {
-      $summary[] = t('No Placeholder Entity Reference');
+      $summary[] = $this->t('No Placeholder Entity Reference');
     }
 
     $operators = $this->getMatchOperatorOptions();
-    $summary[] = t('Autocomplete matching: @match_operator', array('@match_operator' => $operators[$this->getSetting('match_operator')]));
-    $summary[] = t('Textfield Value size: @size', array('@size' => $this->getSetting('size_value')));
+    $summary[] = $this->t('Autocomplete matching: @match_operator', array('@match_operator' => $operators[$this->getSetting('match_operator')]));
+    $summary[] = $this->t('Textfield Value size: @size', array('@size' => $this->getSetting('size_value')));
     $placeholder = $this->getSetting('placeholder_value');
     if (!empty($placeholder)) {
-      $summary[] = t('Placeholder Value: @placeholder', array('@placeholder' => $placeholder));
+      $summary[] = $this->t('Placeholder Value: @placeholder', array('@placeholder' => $placeholder));
     }
     else {
-      $summary[] = t('No Placeholder Value');
+      $summary[] = $this->t('No Placeholder Value');
     }
 
     return $summary;
@@ -220,8 +215,8 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
    */
   protected function getMatchOperatorOptions() {
     return [
-      'STARTS_WITH' => t('Starts with'),
-      'CONTAINS' => t('Contains'),
+      'STARTS_WITH' => $this->t('Starts with'),
+      'CONTAINS' => $this->t('Contains'),
     ];
   }
 

@@ -60,7 +60,7 @@ function reference_value_pair_theme() {
  */
 function template_preprocess_reference_value_pair_formatter(&$variables) {
   $variables['value'] = $variables['item']->value;
-  $variables['label'] = $variables['entity']->label();
+  $variables['label'] = $variables['entity'] ? $variables['entity']->label() : $variables['label'];
 }
 
 /**

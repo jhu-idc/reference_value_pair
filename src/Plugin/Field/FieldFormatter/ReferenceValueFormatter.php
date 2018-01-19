@@ -3,7 +3,6 @@
 namespace Drupal\reference_value_pair\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 
 /**
@@ -17,7 +16,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  *   }
  * )
  */
-class ReferenceValueFormatter extends EntityReferenceFormatterBase {
+class ReferenceValueFormatter extends ReferenceValueFormatterBase {
 
   /**
    * {@inheritdoc}
@@ -25,24 +24,24 @@ class ReferenceValueFormatter extends EntityReferenceFormatterBase {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = array();
 
+    // Include entity and field information to help template suggestions.
+    $element = array(
+      '#field_name' => $this->fieldDefinition->getName(),
+      '#field_type' => $this->fieldDefinition->getType(),
+      '#entity_type' => $items->getEntity()->getEntityTypeId(),
+      '#bundle' => $items->getEntity()->bundle(),
+    );
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
       $elements[$delta] = array(
-        '#theme' => 'reference_value_pair__formatter',
-        '#item' => array(
-          'value' => $items[$delta]->value,
-          'label' => $entity->label(),
-        ),
+        '#theme' => 'reference_value_pair_formatter',
+        '#item' => $items[$delta],
+        '#entity' => $entity,
+        '#label' => $entity ? $entity->label() : $items[$delta]->_label,
+        '#element' => $element,
       );
-
-      $elements[$delta] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ label }} {{ value }}',
-        '#context' => [
-          'value' => $items[$delta]->value,
-          'label' => $entity->label(),
-        ],
-      ];
-      $elements[$delta]['#cache']['tags'] = $entity->getCacheTags();
+      if ($entity !== NULL) {
+        $elements[$delta]['#cache']['tags'] = $entity->getCacheTags();
+      }
     }
 
     return $elements;

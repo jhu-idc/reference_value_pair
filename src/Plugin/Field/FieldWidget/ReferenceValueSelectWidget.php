@@ -36,9 +36,6 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
    */
   public static function defaultSettings() {
     return array(
-      'size_er' => 60,
-      'placeholder_er' => '',
-      'match_operator' => 'CONTAINS',
       'size_value' => 60,
       'placeholder_value' => '',
     ) + parent::defaultSettings();

@@ -173,7 +173,7 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
 //      }
       // The entity_autocomplete form element returns an array when an entity
       // was "autocreated", so we need to move it up a level.
-      if (is_array($value['target_id'][0])) {
+      if (isset($value['target_id'][0]) && is_array($value['target_id'][0])) {
         unset($values[$key]['target_id']);
         $values[$key] += $value['target_id'][0];
       }

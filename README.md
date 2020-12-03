@@ -1,4 +1,4 @@
-This repo was originally created by: https://github.com/jhu-idc/reference_value_pair
+This repo was originally created by: https://git.drupalcode.org/project/reference_value_pair
 
 It is modified slightly to meet our needs here at JHU 
 
@@ -65,7 +65,7 @@ Updates to this specific repo by:
 
  * Bethany Seeger (bseeger) - www.github.com/bseeger
  
-Original maintainers @ https://github.com/jhu-idc/reference_value_pair
+Original maintainers @ https://git.drupalcode.org/project/reference_value_pair
 
  * Michael Moritz (miiimooo) - https://www.drupal.org/u/miiimooo
  * Jose Jiménez (jjcarrion) - https://www.drupal.org/u/jjcarrion

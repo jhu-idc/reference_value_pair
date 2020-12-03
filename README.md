@@ -65,11 +65,11 @@ Updates to this specific repo by:
 
  * Bethany Seeger (bseeger) - www.github.com/bseeger
  
-Original maintainers @ https://git.drupalcode.org/project/reference_value_pair
+Original maintainers for https://git.drupalcode.org/project/reference_value_pair
 
  * Michael Moritz (miiimooo) - https://www.drupal.org/u/miiimooo
  * Jose Jiménez (jjcarrion) - https://www.drupal.org/u/jjcarrion
 
-Supporting organization:
+Original Supporting organization for https://git.drupalcode.org/project/reference_value_pair
 
  * Digitalist Group - https://www.drupal.org/digitalist-group

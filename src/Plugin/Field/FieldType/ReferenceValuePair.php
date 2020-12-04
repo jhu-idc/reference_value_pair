@@ -219,9 +219,11 @@ class ReferenceValuePair extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public function isEmpty() {
-    if (!$this->isEntityEmpty()) {
-      return FALSE;
-    }
+    // it's empty if the string value is not set,
+    // we don't care if the language alone is set. 
+    //if (!$this->isEntityEmpty()) {
+    //  return FALSE;
+    // }
     $value = $this->get('value')->getValue();
     return $value === NULL || $value === '';
   }

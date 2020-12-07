@@ -25,10 +25,11 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
    */
   public static function defaultSettings() {
     return array(
-      'size_er' => 60,
+      'size_er' => 128,
+      'rows' => 5,
       'placeholder_er' => '',
       'match_operator' => 'CONTAINS',
-      'size_value' => 60,
+      'size_value' => 255,
       'placeholder_value' => '',
     ) + parent::defaultSettings();
   }
@@ -37,7 +38,9 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $elements = [];
+      $elements = [];
+
+    
 
     $elements['size_er'] = array(
       '#type' => 'number',
@@ -52,6 +55,7 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
       '#default_value' => $this->getSetting('placeholder_er'),
       '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
     );
+
     $elements['match_operator'] = array(
       '#type' => 'radios',
       '#title' => $this->t('Autocomplete matching'),
@@ -59,6 +63,7 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
       '#options' => $this->getMatchOperatorOptions(),
       '#description' => $this->t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of entities.'),
     );
+
     $elements['size_value'] = array(
       '#type' => 'number',
       '#title' => $this->t('Size of the value textfield'),
@@ -72,6 +77,15 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
       '#default_value' => $this->getSetting('placeholder_value'),
       '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
     );
+    $elements['rows'] = [
+      '#type' => 'number',
+      '#title' => t('Rows'),
+      '#default_value' => $this->getSetting('rows'),
+      '#required' => TRUE,
+      '#min' => 1,
+      '#description' => $this->t('Number of rows to be displayed on a node\'s edit page.'),
+    ];
+
     return $elements;
   }
 
@@ -92,6 +106,7 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
     $operators = $this->getMatchOperatorOptions();
     $summary[] = $this->t('Autocomplete matching: @match_operator', array('@match_operator' => $operators[$this->getSetting('match_operator')]));
     $summary[] = $this->t('Textfield Value size: @size', array('@size' => $this->getSetting('size_value')));
+    $summary[] = t('Number of rows: @rows', ['@rows' => $this->getSetting('rows')]);
     $placeholder = $this->getSetting('placeholder_value');
     if (!empty($placeholder)) {
       $summary[] = $this->t('Placeholder Value: @placeholder', array('@placeholder' => $placeholder));
@@ -121,6 +136,7 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
       // the 'ValidReference' constraint.
       '#validate_reference' => FALSE,
       '#maxlength' => 1024,
+      '#attributes' => ['class' => ['js-text-full', 'text-full']],
       '#default_value' => isset($referenced_entities[$delta]) ? $referenced_entities[$delta] : NULL,
       '#size' => $this->getSetting('size_er'),
       '#placeholder' => $this->getSetting('placeholder_er'),
@@ -135,7 +151,8 @@ class ReferenceValueAutocompleteWidget extends WidgetBase {
     }
 
     $elements['value'] = $original_element + array(
-      '#type' => 'textfield',
+      '#type' => 'textarea',
+      '#rows' => $this->getSetting('rows'),
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
       '#size' => $this->getSetting('size_value'),
       '#placeholder' => $this->getSetting('placeholder_value'),

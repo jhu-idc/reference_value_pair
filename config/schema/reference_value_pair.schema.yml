@@ -8,11 +8,17 @@ field.widget.settings.reference_value_select:
     placeholder_value:
       type: string
       label: 'Value placeholder'
+    rows:
+      type: integer
+      label: 'Number of rows in textfield'
 
 field.widget.settings.reference_value_autocomplete_widget:
   type: mapping
   label: 'Reference value pair autocomplete widget settings.'
   mapping:
+    rows:
+      type: integer
+      label: 'Number of rows in textfield'
     size_value:
       type: integer
       label: 'Size of the value textfield'

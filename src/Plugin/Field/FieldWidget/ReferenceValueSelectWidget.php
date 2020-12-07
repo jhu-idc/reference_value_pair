@@ -36,8 +36,9 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
    */
   public static function defaultSettings() {
     return array(
-      'size_value' => 60,
-      'placeholder_value' => '',
+        'size_value' => 5000,
+        'rows' => 5,
+        'placeholder_value' => '',
     ) + parent::defaultSettings();
   }
 
@@ -46,6 +47,14 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = [];
+
+    $elements['rows'] = [
+      '#type' => 'number',
+      '#title' => t('Rows'),
+      '#default_value' => $this->getSetting('rows'),
+      '#required' => TRUE,
+      '#min' => 1,
+    ];
 
     $elements['size_value'] = array(
       '#type' => 'number',
@@ -76,6 +85,7 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
     else {
       $summary[] = $this->t('No Placeholder Value');
     }
+    $summary[] = t('Number of rows: @rows', ['@rows' => $this->getSetting('rows')]);
 
     return $summary;
   }
@@ -104,11 +114,13 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
     );
 
     $elements['value'] = $original_element + array(
-      '#type' => 'textfield',
+      '#type' => 'textarea',
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
       '#size' => $this->getSetting('size_value'),
       '#placeholder' => $this->getSetting('placeholder_value'),
       '#maxlength' => $this->getFieldSetting('max_length'),
+      '#rows' => $this->getSetting('rows'),
+      '#attributes' => ['class' => ['js-text-full', 'text-full']],
       '#multiple' => FALSE,
       '#title' => t(''),
       '#weight' => 0
@@ -136,6 +148,7 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
   /**
    * {@inheritdoc}
    */
+  /*
   protected function getEmptyLabel() {
     if ($this->multiple) {
       // Multiple select: add a 'none' option for non-required fields.
@@ -154,7 +167,7 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
         return t('- Select a value -');
       }
     }
-  }
+  } */
 
   /**
    * {@inheritdoc}

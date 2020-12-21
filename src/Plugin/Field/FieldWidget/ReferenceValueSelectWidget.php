@@ -19,6 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *   label = @Translation("Select list"),
  *   field_types = {
  *     "reference_value_pair",
+ *     "lang_ref_value_pair"
  *   }
  * )
  */
@@ -110,6 +111,11 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
       // Do not display a 'multiple' select box if there is only one option.
       '#multiple' => FALSE, //$this->multiple && count($this->options) > 1,
       '#title' => t('Language'),
+      '#target_type' => 'taxonomy_term',
+      '#selection_handler' => 'default', // Optional. The default selection handler is pre-populated to 'default'.
+      '#selection_settings' => array(
+        'target_bundles' => array('language'),
+      ),
       '#weight' => 1
     );
 

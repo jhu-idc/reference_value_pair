@@ -28,7 +28,7 @@ use Drupal\Core\Validation\Plugin\Validation\Constraint\AllowedValuesConstraint;
  *   id = "reference_value_pair",
  *   label = @Translation("Reference value pair"),
  *   description = @Translation("Stores an entity reference and a value."),
- *   default_widget = "reference_value_autocomplete_widget",
+ *   default_widget = "lang_ref_select_widget",
  *   default_formatter = "reference_value_formatter",
  *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList"
  * )

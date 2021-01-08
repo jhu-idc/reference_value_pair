@@ -94,7 +94,6 @@ function reference_value_pair_jsonld_alter_normalized_array(EntityInterface $ent
       //\Drupal::logger('reference_value_pair')->warning("field type: ". $field_definition->getType() . "  Field: " . $field);
       if (!empty($entity->get($field)->getValue())) {
         if ($field_definition->getType() == 'reference_value_pair') {
-          \Drupal::logger('reference_value_pair')->warning("Found reference value pair!");
           foreach ($context['current_entity_rdf_mapping']->get('fieldMappings')[$field]['properties'] as $predicate) {
             // check to see if there are already values there, and if so, clear them out as we are
             // going to override them below.

@@ -6,6 +6,10 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\jsonld\Normalizer\NormalizerBase;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
 
 /**
  * Implements hook_help().
@@ -78,4 +82,70 @@ function reference_value_pair_theme_suggestions_reference_value_pair_formatter(a
   $suggestions[] = $prefix . $element['#entity_type'] . '__' . $element['#field_name'] . '__' . $element['#bundle'];
 
   return $suggestions;
+}
+
+/**
+ * Implements hook_jsonld_alter_normalized_array().
+ */
+function reference_value_pair_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
+  // TODO - make sure this checks to see if it's a language reference pair, once that Field Type logic is in
+  if (isset($normalized['@graph']) && is_array($normalized['@graph'])) {
+    foreach ($entity->getFieldDefinitions() as $field => $field_definition) {
+      //\Drupal::logger('reference_value_pair')->warning("field type: ". $field_definition->getType() . "  Field: " . $field);
+      if (!empty($entity->get($field)->getValue())) {
+        if ($field_definition->getType() == 'reference_value_pair') {
+          \Drupal::logger('reference_value_pair')->warning("Found reference value pair!");
+          foreach ($context['current_entity_rdf_mapping']->get('fieldMappings')[$field]['properties'] as $predicate) {
+            // check to see if there are already values there, and if so, clear them out as we are
+            // going to override them below.
+            $predicate_normalized = NormalizerBase::escapePrefix($predicate, $context['namespaces']);
+            if (!empty($normalized['@graph'][0][$predicate_normalized])) {
+              $normalized['@graph'][0][$predicate_normalized] = [];
+            }
+            foreach ($entity->get($field)->getValue() as $value) {
+              if (empty($value['target_id'])) {
+                \Drupal::logger('reference_value_pair')->warning("Missing target entity for %field in %entity_type/%id (%bundle)",
+                [
+                  '%field' => $field,
+                  '%entity_type' => $entity->getEntityTypeId(),
+                  '%bundle' => $entity->bundle(),
+                  '%id' => $entity->id(),
+                ]);
+                continue;
+              }
+
+              $referenced_entity = \Drupal::entityTypeManager()->getStorage($field_definition->getSetting('target_type'))->load($value['target_id']);
+              if (empty($referenced_entity)) {
+                \Drupal::logger('reference_value_pair')->warning("Invalid target entity for %field in %entity_type/%id (%bundle)",
+                [
+                  '%field' => $field,
+                  '%entity_type' => $entity->getEntityTypeId(),
+                  '%bundle' => $entity->bundle(),
+                  '%id' => $entity->id(),
+                ]);
+                continue;
+              }
+
+              $language = $referenced_entity->field_language_code->getValue();
+              if (empty($language)) {
+                \Drupal::logger('reference_value_pair')->warning("Invalid Language Code in Language Taxonomy term %entity_type/%id (%bundle)",
+                [
+                  '%entity_type' => $referenced_entity->getEntityTypeId(),
+                  '%bundle' => $referenced_entity->bundle(),
+                  '%id' => $referenced_entity->id(),
+                ]);
+                continue;
+              }
+              // We are assuming the first graph is the one corresponding
+              // to the node/taxonomy_term we are modifying.
+              $normalized['@graph'][0][$predicate_normalized][] = [
+                '@value' =>  $value['value'],
+                '@language' => $referenced_entity->field_language_code->getValue()[0]['value']
+              ];
+            }
+          }
+        }
+      }
+    }
+  }
 }

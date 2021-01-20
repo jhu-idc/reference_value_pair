@@ -12,7 +12,8 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  *   id = "reference_value_formatter",
  *   label = @Translation("Reference value formatter"),
  *   field_types = {
- *     "reference_value_pair"
+ *     "reference_value_pair",
+ *     "language_value_pair"
  *   }
  * )
  */

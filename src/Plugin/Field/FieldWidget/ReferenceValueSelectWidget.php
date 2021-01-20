@@ -19,6 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *   label = @Translation("Select list"),
  *   field_types = {
  *     "reference_value_pair",
+ *     "language_value_pair"
  *   }
  * )
  */

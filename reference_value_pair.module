@@ -93,54 +93,60 @@ function reference_value_pair_jsonld_alter_normalized_array(EntityInterface $ent
     foreach ($entity->getFieldDefinitions() as $field => $field_definition) {
       //\Drupal::logger('reference_value_pair')->warning("field type: ". $field_definition->getType() . "  Field: " . $field);
       if (!empty($entity->get($field)->getValue())) {
-        if ($field_definition->getType() == 'reference_value_pair') {
-          foreach ($context['current_entity_rdf_mapping']->get('fieldMappings')[$field]['properties'] as $predicate) {
-            // check to see if there are already values there, and if so, clear them out as we are
-            // going to override them below.
-            $predicate_normalized = NormalizerBase::escapePrefix($predicate, $context['namespaces']);
-            if (!empty($normalized['@graph'][0][$predicate_normalized])) {
-              $normalized['@graph'][0][$predicate_normalized] = [];
-            }
-            foreach ($entity->get($field)->getValue() as $value) {
-              if (empty($value['target_id'])) {
-                \Drupal::logger('reference_value_pair')->warning("Missing target entity for %field in %entity_type/%id (%bundle)",
-                [
-                  '%field' => $field,
-                  '%entity_type' => $entity->getEntityTypeId(),
-                  '%bundle' => $entity->bundle(),
-                  '%id' => $entity->id(),
-                ]);
-                continue;
+        if ($field_definition->getType() == 'language_value_pair' || 
+            $field_definition->getType() == 'reference_value_pair' ) {
+            if (isset($context['current_entity_rdf_mapping']->get('fieldMappings')[$field])) {
+              foreach ($context['current_entity_rdf_mapping']->get('fieldMappings')[$field]['properties'] as $predicate) {
+              // check to see if there are already values there, and if so, clear them out as we are
+              // going to override them below.
+              $predicate_normalized = NormalizerBase::escapePrefix($predicate, $context['namespaces']);
+              if (!empty($normalized['@graph'][0][$predicate_normalized])) {
+                $normalized['@graph'][0][$predicate_normalized] = [];
               }
+              foreach ($entity->get($field)->getValue() as $value) {
+                if (empty($value['target_id'])) {
+                  \Drupal::logger('reference_value_pair')->warning("Missing target entity for %field in %entity_type/%id (%bundle)",
+                  [
+                    '%field' => $field,
+                    '%entity_type' => $entity->getEntityTypeId(),
+                    '%bundle' => $entity->bundle(),
+                    '%id' => $entity->id(),
+                  ]);
+                  continue;
+                }
+  
+                $referenced_entity = \Drupal::entityTypeManager()->getStorage($field_definition->getSetting('target_type'))->load($value['target_id']);
+                if (empty($referenced_entity)) {
+                  \Drupal::logger('reference_value_pair')->warning("Invalid target entity for %field in %entity_type/%id (%bundle)",
+                  [
+                    '%field' => $field,
+                    '%entity_type' => $entity->getEntityTypeId(),
+                    '%bundle' => $entity->bundle(),
+                    '%id' => $entity->id(),
+                  ]);
+                  continue;
+                }
 
-              $referenced_entity = \Drupal::entityTypeManager()->getStorage($field_definition->getSetting('target_type'))->load($value['target_id']);
-              if (empty($referenced_entity)) {
-                \Drupal::logger('reference_value_pair')->warning("Invalid target entity for %field in %entity_type/%id (%bundle)",
-                [
-                  '%field' => $field,
-                  '%entity_type' => $entity->getEntityTypeId(),
-                  '%bundle' => $entity->bundle(),
-                  '%id' => $entity->id(),
-                ]);
-                continue;
-              }
+                $language = $referenced_entity->field_language_code->getValue();
+                if (empty($language)) {
+                  \Drupal::logger('reference_value_pair')->warning("Invalid Language Code in Language Taxonomy term %entity_type/%id (%bundle)",
+                  [
+                    '%entity_type' => $referenced_entity->getEntityTypeId(),
+                    '%bundle' => $referenced_entity->bundle(),
+                    '%id' => $referenced_entity->id(),
+                  ]);
+                  continue;
+                }
 
-              $language = $referenced_entity->field_language_code->getValue();
-              if (empty($language)) {
-                \Drupal::logger('reference_value_pair')->warning("Invalid Language Code in Language Taxonomy term %entity_type/%id (%bundle)",
-                [
-                  '%entity_type' => $referenced_entity->getEntityTypeId(),
-                  '%bundle' => $referenced_entity->bundle(),
-                  '%id' => $referenced_entity->id(),
-                ]);
-                continue;
+                $data = array('@value' => $value['value']);
+  
+                if ($field_definition->getType() == 'language_value_pair') {
+                   $data['@language'] = $referenced_entity->field_language_code->getValue()[0]['value'];
+                } else {
+                   $data['@id'] = $referenced_entity->toUrl('canonical', ['absolute' => TRUE])->setRouteParameter('_format', 'jsonld')->toString();
+                }
+                $normalized['@graph'][0][$predicate_normalized][] = $data;
               }
-              // We are assuming the first graph is the one corresponding
-              // to the node/taxonomy_term we are modifying.
-              $normalized['@graph'][0][$predicate_normalized][] = [
-                '@value' =>  $value['value'],
-                '@language' => $referenced_entity->field_language_code->getValue()[0]['value']
-              ];
             }
           }
         }

@@ -15,7 +15,8 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *   id = "reference_value_autocomplete_widget",
  *   label = @Translation("Reference value autocomplete"),
  *   field_types = {
- *     "reference_value_pair"
+ *     "reference_value_pair",
+ *     "language_value_pair"
  *   }
  * )
  */

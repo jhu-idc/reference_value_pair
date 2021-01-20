@@ -1,6 +1,18 @@
 This repo was originally created by: https://git.drupalcode.org/project/reference_value_pair
 
-It is modified slightly to meet our needs here at JHU 
+It is modified slightly to meet our needs here at JHU. 
+
+Specific changes include:
+ * the addition of a variant of the Reference Value Field Type called Language Value Pair that pairs a string with a Language Taxonomy Term.  
+ * serialization into JSON-LD via a hook in the module code. 
+ 
+Reference Value Pair FieldType is generic and will accomodate a string attached to any entity reference. 
+ 
+The Language Value Pair is more specific and requires that a Language Taxonomy exists.  The Language Taxonomy must have a field in it named field_language_code.  The field_language_code needs to be string that this module can use to put into the JSON-LD for this widget. 
+
+A good TODO would to bring this Language Taxonomy into this module to ensure that it's there. 
+
+--------------------
 
 
 CONTENTS OF THIS FILE

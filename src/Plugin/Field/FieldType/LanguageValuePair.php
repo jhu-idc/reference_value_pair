@@ -508,7 +508,7 @@ class LanguageValuePair extends EntityReferenceItem {
 
     // Rebuild the array by changing the bundle key into the bundle label.
     $target_type = $field_definition->getSetting('target_type');
-    $bundles = \Drupal::entityTypeManager()->getBundleInfo($target_type);
+    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
 
     $return = array();
     foreach ($options as $bundle => $entity_ids) {

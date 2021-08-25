@@ -23,7 +23,7 @@ function reference_value_pair_field_views_data(FieldStorageConfigInterface $fiel
     return $data;
   }
 
-  $entity_manager = \Drupal::entityManager();
+  $entity_manager = \Drupal::entityTypeManager();
   $entity_type_id = $field_storage->getTargetEntityTypeId();
   /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
   $table_mapping = $entity_manager->getStorage($entity_type_id)->getTableMapping();

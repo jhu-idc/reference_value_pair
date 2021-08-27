@@ -115,7 +115,7 @@ abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase 
         }
         // Set the entity in the correct language for display.
         if ($entity instanceof TranslatableInterface) {
-          $entity = \Drupal::entityManager()->getTranslationFromContext($entity, $langcode);
+          $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
         }
 
         $access = $this->checkAccess($entity);

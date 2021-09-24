@@ -30,21 +30,20 @@ function reference_value_pair_help($route_name, RouteMatchInterface $route_match
   }
 }
 
-
 /**
  * Implements hook_theme().
  */
 function reference_value_pair_theme() {
-  return array(
-    'reference_value_pair_formatter' => array(
-      'variables' => array(
+  return [
+    'reference_value_pair_formatter' => [
+      'variables' => [
         'item' => NULL,
         'entity' => NULL,
         'url' => NULL,
-        'element' => array(),
-      ),
-    ),
-  );
+        'element' => [],
+      ],
+    ],
+  ];
 }
 
 /**
@@ -67,7 +66,7 @@ function template_preprocess_reference_value_pair_formatter(&$variables) {
  * Implements hook_theme_suggestions_HOOK().
  */
 function reference_value_pair_theme_suggestions_reference_value_pair_formatter(array $variables) {
-  $suggestions = array();
+  $suggestions = [];
   $element = $variables['element'];
   $prefix = $variables['theme_hook_original'] . '__';
 

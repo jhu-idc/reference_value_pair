@@ -4,7 +4,6 @@ namespace Drupal\reference_value_pair\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Field\FieldItemList;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsWidgetBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -23,6 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  * )
  */
 class ReferenceValueSelectWidget extends OptionsWidgetBase {
+
   /**
    * {@inheritdoc}
    */
@@ -31,14 +31,15 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
     $property_names = $this->fieldDefinition->getFieldStorageDefinition()->getPropertyNames();
     $this->column = in_array('target_id', $property_names) ? 'target_id' : $this->column;
   }
+
   /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'size_value' => 60,
       'placeholder_value' => '',
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -47,19 +48,19 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = [];
 
-    $elements['size_value'] = array(
+    $elements['size_value'] = [
       '#type' => 'number',
       '#title' => $this->t('Size of the value textfield'),
       '#default_value' => $this->getSetting('size_value'),
       '#min' => 1,
       '#required' => TRUE,
-    );
-    $elements['placeholder_value'] = array(
+    ];
+    $elements['placeholder_value'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Value placeholder'),
       '#default_value' => $this->getSetting('placeholder_value'),
       '#description' => $this->t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
-    );
+    ];
     return $elements;
   }
 
@@ -71,7 +72,7 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
 
     $placeholder = $this->getSetting('placeholder_value');
     if (!empty($placeholder)) {
-      $summary[] = $this->t('Placeholder Value: @placeholder', array('@placeholder' => $placeholder));
+      $summary[] = $this->t('Placeholder Value: @placeholder', ['@placeholder' => $placeholder]);
     }
     else {
       $summary[] = $this->t('No Placeholder Value');
@@ -93,23 +94,24 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
     $value = $items->get($delta)->{$this->column};
     $value = isset($flat_options[$value]) ? $value : NULL;
 
-    $element += array(
+    $element += [
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $value,
       // Do not display a 'multiple' select box if there is only one option.
-      '#multiple' => FALSE, //$this->multiple && count($this->options) > 1,
-    );
+    // $this->multiple && count($this->options) > 1,.
+      '#multiple' => FALSE,
+    ];
 
     $elements['target_id'] = $element;
-    $elements['value'] = $original_element + array(
+    $elements['value'] = $original_element + [
       '#type' => 'textfield',
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
       '#size' => $this->getSetting('size_value'),
       '#placeholder' => $this->getSetting('placeholder_value'),
       '#maxlength' => $this->getFieldSetting('max_length'),
       '#multiple' => FALSE,
-      );
+    ];
 
     return $elements;
   }
@@ -164,10 +166,10 @@ class ReferenceValueSelectWidget extends OptionsWidgetBase {
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
     foreach ($values as $key => $value) {
-//      if (isset($value['target_id'][0]['value'])) {
-//        unset($values[$key]['target_id']);
-//        $values[$key]['target_id'] = $value['target_id'][0]['value'];
-//      }
+      // If (isset($value['target_id'][0]['value'])) {
+      //        unset($values[$key]['target_id']);
+      //        $values[$key]['target_id'] = $value['target_id'][0]['value'];
+      //      }
       // The entity_autocomplete form element returns an array when an entity
       // was "autocreated", so we need to move it up a level.
       if (isset($value['target_id'][0]) && is_array($value['target_id'][0])) {

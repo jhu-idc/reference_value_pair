@@ -22,23 +22,23 @@ class ReferenceValueFormatter extends ReferenceValueFormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = array();
+    $elements = [];
 
     // Include entity and field information to help template suggestions.
-    $element = array(
+    $element = [
       '#field_name' => $this->fieldDefinition->getName(),
       '#field_type' => $this->fieldDefinition->getType(),
       '#entity_type' => $items->getEntity()->getEntityTypeId(),
       '#bundle' => $items->getEntity()->bundle(),
-    );
+    ];
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
-      $elements[$delta] = array(
+      $elements[$delta] = [
         '#theme' => 'reference_value_pair_formatter',
         '#item' => $items[$delta],
         '#entity' => $entity,
         '#label' => $entity ? $entity->label() : $items[$delta]->_label,
         '#element' => $element,
-      );
+      ];
       if ($entity !== NULL) {
         $elements[$delta]['#cache']['tags'] = $entity->getCacheTags();
       }

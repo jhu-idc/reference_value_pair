@@ -1,13 +1,10 @@
 name: Reference Value Pair
+core_version_requirement: ^8.8 || ^9
 type: module
 description: Defines a few field types for storing a entity reference and a value together.
-# core: 8.x
 package: Field types
 dependencies:
   - drupal:field
-
 # Information added by Drupal.org packaging script on 2019-03-21
 version: '8.x-2.0-alpha1'
-core: '8.x'
 project: 'reference_value_pair'
-datestamp: 1553172789

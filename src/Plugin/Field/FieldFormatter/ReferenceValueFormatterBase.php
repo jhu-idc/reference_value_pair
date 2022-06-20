@@ -3,24 +3,76 @@
 namespace Drupal\reference_value_pair\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\TypedData\TranslatableInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Parent plugin for reference value pair formatters.
  */
-abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase {
+abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The entity repository.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
+
+  /**
+   * Constructs a ReferenceValueFormatterBase instance.
+   *
+   * @param string $plugin_id
+   *   The plugin_id for the formatter.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the formatter is associated.
+   * @param array $settings
+   *   The formatter settings.
+   * @param string $label
+   *   The formatter label display setting.
+   * @param string $view_mode
+   *   The view mode.
+   * @param array $third_party_settings
+   *   Any third party settings settings.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity repository.
+   */
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityRepositoryInterface $entity_repository) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->entityRepository = $entity_repository;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('entity.repository')
+    );
+  }
 
   /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'display_invalid_reference' => TRUE,
       'invalid_reference_label' => '',
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -29,24 +81,24 @@ abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase 
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    $elements['display_invalid_reference'] = array(
+    $elements['display_invalid_reference'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Display invalid reference'),
       '#default_value' => $this->getSetting('display_invalid_reference'),
       '#min' => 1,
       '#description' => $this->t('Display the value even if the referenced entity is invalid (e.g. has been deleted).'),
-    );
-    $elements['invalid_reference_label'] = array(
+    ];
+    $elements['invalid_reference_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Invalid reference label'),
       '#default_value' => $this->getSetting('invalid_reference_label'),
       '#description' => $this->t('Label to display when the reference is invalid. Leave empty to not display only the value without a label.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name*="display_invalid_reference"]' => array('checked' => TRUE),
-        ),
-      ),
-    );
+      '#states' => [
+        'visible' => [
+          ':input[name*="display_invalid_reference"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
 
     return $elements;
   }
@@ -75,10 +127,9 @@ abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase 
     return $summary;
   }
 
-
-
   /**
    * Returns the referenced entities for display.
+   *
    * @TODO update documentation
    *
    * The method takes care of:
@@ -103,7 +154,7 @@ abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase 
    * @see ::prepareView()
    */
   protected function getEntitiesToView(EntityReferenceFieldItemListInterface $items, $langcode) {
-    $entities = array();
+    $entities = [];
 
     foreach ($items as $delta => $item) {
       // Ignore items where no entity could be loaded in prepareView().
@@ -115,7 +166,7 @@ abstract class ReferenceValueFormatterBase extends EntityReferenceFormatterBase 
         }
         // Set the entity in the correct language for display.
         if ($entity instanceof TranslatableInterface) {
-          $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
+          $entity = $this->entityRepository->getTranslationFromContext($entity, $langcode);
         }
 
         $access = $this->checkAccess($entity);

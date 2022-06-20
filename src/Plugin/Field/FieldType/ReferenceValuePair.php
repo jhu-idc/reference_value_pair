@@ -34,26 +34,27 @@ use Drupal\Core\Validation\Plugin\Validation\Constraint\AllowedValuesConstraint;
  * )
  */
 class ReferenceValuePair extends EntityReferenceItem {
+
   /**
    * {@inheritdoc}
    */
   public static function defaultStorageSettings() {
-    return array(
+    return [
       'max_length' => 255,
       'is_ascii' => FALSE,
       'case_sensitive' => FALSE,
       'target_type' => \Drupal::moduleHandler()->moduleExists('node') ? 'node' : 'user',
-    ) + parent::defaultStorageSettings();
+    ] + parent::defaultStorageSettings();
   }
 
   /**
    * {@inheritdoc}
    */
   public static function defaultFieldSettings() {
-    return array(
+    return [
       'handler' => 'default',
-      'handler_settings' => array(),
-    ) + parent::defaultFieldSettings();
+      'handler_settings' => [],
+    ] + parent::defaultFieldSettings();
   }
 
   /**
@@ -66,7 +67,7 @@ class ReferenceValuePair extends EntityReferenceItem {
       ->setSetting('case_sensitive', $field_definition->getSetting('case_sensitive'))
       ->setRequired(TRUE);
     $settings = $field_definition->getSettings();
-    $target_type_info = \Drupal::entityTypeManager()->getDefinition($settings['target_type']);
+    $target_type_info = \Drupal::service('entity_type.manager')->getDefinition($settings['target_type']);
 
     $target_id_data_type = 'string';
     if ($target_type_info->isSubclassOf('\Drupal\Core\Entity\FieldableEntityInterface')) {
@@ -108,41 +109,41 @@ class ReferenceValuePair extends EntityReferenceItem {
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $target_type = $field_definition->getSetting('target_type');
-    $target_type_info = \Drupal::entityTypeManager()->getDefinition($target_type);
+    $target_type_info = \Drupal::service('entity_type.manager')->getDefinition($target_type);
     $properties = static::propertyDefinitions($field_definition)['target_id'];
     if ($target_type_info->isSubclassOf('\Drupal\Core\Entity\FieldableEntityInterface') && $properties->getDataType() === 'integer') {
-      $columns = array(
-        'target_id' => array(
+      $columns = [
+        'target_id' => [
           'description' => 'The ID of the target entity.',
           'type' => 'int',
           'unsigned' => TRUE,
-        ),
-      );
+        ],
+      ];
     }
     else {
-      $columns = array(
-        'target_id' => array(
+      $columns = [
+        'target_id' => [
           'description' => 'The ID of the target entity.',
           'type' => 'varchar_ascii',
           // If the target entities act as bundles for another entity type,
           // their IDs should not exceed the maximum length for bundles.
           'length' => $target_type_info->getBundleOf() ? EntityTypeInterface::BUNDLE_MAX_LENGTH : 255,
-        ),
-      );
+        ],
+      ];
     }
 
-    $columns['value'] = array(
+    $columns['value'] = [
       'type' => $field_definition->getSetting('is_ascii') === TRUE ? 'varchar_ascii' : 'varchar',
       'length' => (int) $field_definition->getSetting('max_length'),
       'binary' => $field_definition->getSetting('case_sensitive'),
-    );
+    ];
 
-    $schema = array(
+    $schema = [
       'columns' => $columns,
-      'indexes' => array(
-        'target_id' => array('target_id'),
-      ),
-    );
+      'indexes' => [
+        'target_id' => ['target_id'],
+      ],
+    ];
 
     return $schema;
   }
@@ -162,17 +163,17 @@ class ReferenceValuePair extends EntityReferenceItem {
 
     if ($max_length = $this->getSetting('max_length')) {
       $constraint_manager = \Drupal::typedDataManager()->getValidationConstraintManager();
-      $constraints[] = $constraint_manager->create('ComplexData', array(
-        'value' => array(
-          'Length' => array(
+      $constraints[] = $constraint_manager->create('ComplexData', [
+        'value' => [
+          'Length' => [
             'max' => $max_length,
-            'maxMessage' => t('%name: may not be longer than @max characters.', array(
+            'maxMessage' => t('%name: may not be longer than @max characters.', [
               '%name' => $this->getFieldDefinition()->getLabel(),
               '@max' => $max_length,
-            )),
-          ),
-        ),
-      ));
+            ]),
+          ],
+        ],
+      ]);
     }
 
     return $constraints;
@@ -193,7 +194,7 @@ class ReferenceValuePair extends EntityReferenceItem {
   public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
     $elements = [];
 
-    $elements['max_length'] = array(
+    $elements['max_length'] = [
       '#type' => 'number',
       '#title' => t('Maximum length'),
       '#default_value' => $this->getSetting('max_length'),
@@ -201,17 +202,17 @@ class ReferenceValuePair extends EntityReferenceItem {
       '#description' => t('The maximum length of the field in characters.'),
       '#min' => 1,
       '#disabled' => $has_data,
-    );
+    ];
 
-    $elements['target_type'] = array(
+    $elements['target_type'] = [
       '#type' => 'select',
       '#title' => t('Type of item to reference'),
-      '#options' => \Drupal::entityTypeManager()->getEntityTypeLabels(TRUE),
+      '#options' => \Drupal::service('entity_type.repository')->getEntityTypeLabels(TRUE),
       '#default_value' => $this->getSetting('target_type'),
       '#required' => TRUE,
       '#disabled' => $has_data,
       '#size' => 1,
-    );
+    ];
     return $elements;
   }
 
@@ -219,11 +220,9 @@ class ReferenceValuePair extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public function isEmpty() {
-    // it's empty if the string value is not set,
-    // we don't care if the language alone is set. 
-    //if (!$this->isEntityEmpty()) {
-    //  return FALSE;
-    // }
+    if (!$this->isEntityEmpty()) {
+      return FALSE;
+    }
     $value = $this->get('value')->getValue();
     return $value === NULL || $value === '';
   }
@@ -270,7 +269,7 @@ class ReferenceValuePair extends EntityReferenceItem {
 
     // Get all selection plugins for this entity type.
     $selection_plugins = \Drupal::service('plugin.manager.entity_reference_selection')->getSelectionGroups($this->getSetting('target_type'));
-    $handlers_options = array();
+    $handlers_options = [];
     foreach (array_keys($selection_plugins) as $selection_group_id) {
       // We only display base plugins (e.g. 'default', 'views', ...) and not
       // entity type specific plugins (e.g. 'default:node', 'default:user',
@@ -284,46 +283,46 @@ class ReferenceValuePair extends EntityReferenceItem {
       }
     }
 
-    $form = array(
+    $form = [
       '#type' => 'container',
-      '#process' => array(array(get_class($this), 'fieldSettingsAjaxProcess')),
-      '#element_validate' => array(array(get_class($this), 'fieldSettingsFormValidate')),
+      '#process' => [[get_class($this), 'fieldSettingsAjaxProcess']],
+      '#element_validate' => [[get_class($this), 'fieldSettingsFormValidate']],
 
-    );
-    $form['handler'] = array(
+    ];
+    $form['handler'] = [
       '#type' => 'details',
       '#title' => $this->t('Reference type'),
       '#open' => TRUE,
       '#tree' => TRUE,
-      '#process' => array(array(get_class($this), 'formProcessMergeParent')),
-    );
+      '#process' => [[get_class($this), 'formProcessMergeParent']],
+    ];
 
-    $form['handler']['handler'] = array(
+    $form['handler']['handler'] = [
       '#type' => 'select',
       '#title' => $this->t('Reference method'),
       '#options' => $handlers_options,
       '#default_value' => $field->getSetting('handler'),
       '#required' => TRUE,
       '#ajax' => TRUE,
-      '#limit_validation_errors' => array(),
-    );
-    $form['handler']['handler_submit'] = array(
+      '#limit_validation_errors' => [],
+    ];
+    $form['handler']['handler_submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Change handler'),
-      '#limit_validation_errors' => array(),
-      '#attributes' => array(
-        'class' => array('js-hide'),
-      ),
-      '#submit' => array(array(get_class($this), 'settingsAjaxSubmit')),
-    );
+      '#limit_validation_errors' => [],
+      '#attributes' => [
+        'class' => ['js-hide'],
+      ],
+      '#submit' => [[get_class($this), 'settingsAjaxSubmit']],
+    ];
 
-    $form['handler']['handler_settings'] = array(
+    $form['handler']['handler_settings'] = [
       '#type' => 'container',
-      '#attributes' => array('class' => array('entity_reference-settings')),
-    );
+      '#attributes' => ['class' => ['entity_reference-settings']],
+    ];
 
     $handler = \Drupal::service('plugin.manager.entity_reference_selection')->getSelectionHandler($field);
-    $form['handler']['handler_settings'] += $handler->buildConfigurationForm(array(), $form_state);
+    $form['handler']['handler_settings'] += $handler->buildConfigurationForm([], $form_state);
 
     return $form;
   }
@@ -361,14 +360,16 @@ class ReferenceValuePair extends EntityReferenceItem {
    */
   public static function calculateDependencies(FieldDefinitionInterface $field_definition) {
     $dependencies = parent::calculateDependencies($field_definition);
-    $manager = \Drupal::entityTypeManager();
+    // TODO: Drupal Rector Notice: Please delete the following comment after you've made any necessary changes.
+    // We are assuming that we want to use the `entity_type.manager` service since no method was called here directly. Please confirm this is the case. See https://www.drupal.org/node/2549139 for more information.
+    $manager = \Drupal::service('entity_type.manager');
     $target_entity_type = $manager->getDefinition($field_definition->getFieldStorageDefinition()->getSetting('target_type'));
 
     // Depend on default values entity types configurations.
     if ($default_value = $field_definition->getDefaultValueLiteral()) {
       foreach ($default_value as $value) {
         if (is_array($value) && isset($value['target_uuid'])) {
-          $entity = \Drupal::entityTypeManager()->loadEntityByUuid($target_entity_type->id(), $value['target_uuid']);
+          $entity = \Drupal::service('entity.repository')->loadEntityByUuid($target_entity_type->id(), $value['target_uuid']);
           // If the entity does not exist do not create the dependency.
           // @see \Drupal\Core\Field\EntityReferenceFieldItemList::processDefaultValue()
           if ($entity) {
@@ -398,7 +399,7 @@ class ReferenceValuePair extends EntityReferenceItem {
    */
   public static function calculateStorageDependencies(FieldStorageDefinitionInterface $field_definition) {
     $dependencies = parent::calculateStorageDependencies($field_definition);
-    $target_entity_type = \Drupal::entityTypeManager()->getDefinition($field_definition->getSetting('target_type'));
+    $target_entity_type = \Drupal::service('entity_type.manager')->getDefinition($field_definition->getSetting('target_type'));
     $dependencies['module'][] = $target_entity_type->getProvider();
     return $dependencies;
   }
@@ -408,14 +409,16 @@ class ReferenceValuePair extends EntityReferenceItem {
    */
   public static function onDependencyRemoval(FieldDefinitionInterface $field_definition, array $dependencies) {
     $changed = parent::onDependencyRemoval($field_definition, $dependencies);
-    $entity_manager = \Drupal::entityTypeManager();
+    // TODO: Drupal Rector Notice: Please delete the following comment after you've made any necessary changes.
+    // We are assuming that we want to use the `entity_type.manager` service since no method was called here directly. Please confirm this is the case. See https://www.drupal.org/node/2549139 for more information.
+    $entity_manager = \Drupal::service('entity_type.manager');
     $target_entity_type = $entity_manager->getDefinition($field_definition->getFieldStorageDefinition()->getSetting('target_type'));
 
     // Try to update the default value config dependency, if possible.
     if ($default_value = $field_definition->getDefaultValueLiteral()) {
       foreach ($default_value as $key => $value) {
         if (is_array($value) && isset($value['target_uuid'])) {
-          $entity = $entity_manager->loadEntityByUuid($target_entity_type->id(), $value['target_uuid']);
+          $entity = \Drupal::service('entity.repository')->loadEntityByUuid($target_entity_type->id(), $value['target_uuid']);
           // @see \Drupal\Core\Field\EntityReferenceFieldItemList::processDefaultValue()
           if ($entity && isset($dependencies[$entity->getConfigDependencyKey()][$entity->getConfigDependencyName()])) {
             unset($default_value[$key]);
@@ -495,14 +498,14 @@ class ReferenceValuePair extends EntityReferenceItem {
   public function getSettableOptions(AccountInterface $account = NULL) {
     $field_definition = $this->getFieldDefinition();
     if (!$options = \Drupal::service('plugin.manager.entity_reference_selection')->getSelectionHandler($field_definition, $this->getEntity())->getReferenceableEntities()) {
-      return array();
+      return [];
     }
 
     // Rebuild the array by changing the bundle key into the bundle label.
     $target_type = $field_definition->getSetting('target_type');
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
 
-    $return = array();
+    $return = [];
     foreach ($options as $bundle => $entity_ids) {
       // The label does not need sanitizing since it is used as an optgroup
       // which is only supported by select elements and auto-escaped.
@@ -532,11 +535,11 @@ class ReferenceValuePair extends EntityReferenceItem {
    */
   public static function fieldSettingsAjaxProcessElement(&$element, $main_form) {
     if (!empty($element['#ajax'])) {
-      $element['#ajax'] = array(
-        'callback' => array(get_called_class(), 'settingsAjax'),
+      $element['#ajax'] = [
+        'callback' => [get_called_class(), 'settingsAjax'],
         'wrapper' => $main_form['#id'],
         'element' => $main_form['#array_parents'],
-      );
+      ];
     }
 
     foreach (Element::children($element) as $key) {
@@ -580,6 +583,7 @@ class ReferenceValuePair extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public static function getPreconfiguredOptions() {
-    return array();
+    return [];
   }
+
 }
